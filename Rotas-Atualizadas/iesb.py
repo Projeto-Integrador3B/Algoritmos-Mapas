@@ -2,16 +2,16 @@ import osmnx as ox
 import networkx as nx
 import time
 
-# ==============================
+
 # 1. BAIXAR MAPA REDUZIDO
-# ==============================
+
 print("Baixando mapa reduzido (3 km em torno do centro entre IESB e Mané Garrincha)...")
 center_point = (-15.82, -47.90)  # ponto central aproximado
 G = ox.graph_from_point(center_point, dist=3000, network_type="drive")
 
-# ==============================
+
 # 2. ADICIONAR VELOCIDADES E TEMPO DE VIAGEM
-# ==============================
+
 G = ox.add_edge_speeds(G)  # atribui velocidades padrão do OSM
 
 # Forçar velocidades diferentes por tipo de via
@@ -26,9 +26,9 @@ for u, v, k, data in G.edges(keys=True, data=True):
         # recalcular travel_time
         data["travel_time"] = data["length"] / (data["speed_kph"] * 1000 / 3600)
 
-# ==============================
+
 # 3. DEFINIR ORIGEM E DESTINO
-# ==============================
+
 # Origem: IESB Asa Sul
 orig_node = ox.distance.nearest_nodes(G, X=-47.9121, Y=-15.8309)
 
@@ -38,9 +38,9 @@ dest_node = ox.distance.nearest_nodes(G, X=-47.8925, Y=-15.7835)
 print(f"Nó de origem (IESB Asa Sul): {orig_node}")
 print(f"Nó de destino (Mané Garrincha): {dest_node}")
 
-# ==============================
+
 # 4. ALGORITMO DE DIJKSTRA (distância)
-# ==============================
+
 start_time = time.time()
 route_dijkstra = nx.shortest_path(G, orig_node, dest_node,
                                   weight="length", method="dijkstra")
@@ -52,9 +52,9 @@ print(f"Tempo de execução: {time_dijkstra:.6f} s")
 print(f"Distância total: {length_dijkstra/1000:.2f} km")
 print(f"Nós no caminho: {len(route_dijkstra)}")
 
-# ==============================
+
 # 5. ALGORITMO A* (tempo de viagem)
-# ==============================
+
 start_time = time.time()
 route_astar = nx.astar_path(G, orig_node, dest_node, weight="travel_time")
 time_astar = time.time() - start_time
@@ -67,9 +67,9 @@ print(f"Tempo estimado de viagem: {time_astar_total/60:.1f} min")
 print(f"Distância total: {length_astar/1000:.2f} km")
 print(f"Nós no caminho: {len(route_astar)}")
 
-# ==============================
+
 # 6. VISUALIZAÇÃO
-# ==============================
+
 print("\nDesenhando rotas...")
 fig, ax = ox.plot_graph_routes(
     G,
